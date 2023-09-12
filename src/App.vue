@@ -20,8 +20,7 @@
             <router-link to="/ventas"><v-list-item  prepend-icon="mdi-account-multiple" title="INVENTARIO" value="shared"></v-list-item></router-link>
             <router-link to="/usuarios"><v-list-item  prepend-icon="mdi-account-multiple" title="USUARIOS" value="shared"></v-list-item></router-link>
             <router-link to="/crearusuarios"><v-list-item  prepend-icon="mdi-account-multiple" title="CREAR USUARIOS" value="shared"></v-list-item></router-link>
-  
-  
+            <router-link to="/Login"><v-list-item  prepend-icon="mdi-account-multiple" title="SIGN IN/SIGN UP" value="shared"></v-list-item></router-link>  
           </v-list>
         </v-navigation-drawer >
         <v-main class="main">
@@ -42,9 +41,7 @@
   margin-top: 64px;
   }
   .main{
-    background-color: #C8E6C9
-  ;
-    height: calc(100vh- 64px);
+    background-color: #C8E6C9;
   }
   
   </style>
