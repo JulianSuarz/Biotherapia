@@ -3,8 +3,9 @@
    color="#43A047">
   
     <v-img 
-    :max-width="50"
-    src="./assets/logo.png"></v-img>
+    :max-width="70"
+    id="logonav"
+    src="../src/assets/logoBiotherapia.png"></v-img>
     <v-toolbar-title>BioTherapia</v-toolbar-title>
   
   </v-toolbar>
@@ -16,11 +17,11 @@
         >
           <v-divider ></v-divider>
           <v-list density="compact" nav>
-            <router-link to="/"><v-list-item  prepend-icon="mdi-folder" title="INICIO" value="myfiles"></v-list-item></router-link>
-            <router-link to="/ventas"><v-list-item  prepend-icon="mdi-account-multiple" title="INVENTARIO" value="shared"></v-list-item></router-link>
-            <router-link to="/usuarios"><v-list-item  prepend-icon="mdi-account-multiple" title="USUARIOS" value="shared"></v-list-item></router-link>
-            <router-link to="/crearusuarios"><v-list-item  prepend-icon="mdi-account-multiple" title="CREAR USUARIOS" value="shared"></v-list-item></router-link>
-            <router-link to="/Login"><v-list-item  prepend-icon="mdi-account-multiple" title="SIGN IN/SIGN UP" value="shared"></v-list-item></router-link>  
+            <router-link class="rlnav" to="/"><v-list-item  prepend-icon="mdi mdi-home" title="INICIO" value="myfiles"></v-list-item></router-link>
+            <router-link class="rlnav"  to="/ventas"><v-list-item  prepend-icon="mdi mdi-server" title="INVENTARIO" value="shared"></v-list-item></router-link>
+            <router-link class="rlnav" to="/usuarios"><v-list-item  prepend-icon="mdi-account-multiple" title="USUARIOS" value="shared"></v-list-item></router-link>
+            <router-link class="rlnav" to="/crearusuarios"><v-list-item  prepend-icon="mdi-account-multiple" title="CREAR USUARIOS" value="shared"></v-list-item></router-link>
+            <router-link class="rlnav" to="/Login"><v-list-item  prepend-icon="mdi mdi-login" title="SIGN IN/SIGN UP" value="shared"></v-list-item></router-link>  
           </v-list>
         </v-navigation-drawer >
         <v-main class="main">
@@ -42,8 +43,14 @@
   }
   .main{
     background-color: #C8E6C9;
+    height: 93vh;
   }
-  
+  #logonav{
+    margin-left: 1%;
+  }
+  .rlnav{
+    text-decoration: none;
+  }
   </style>
   <script>
   

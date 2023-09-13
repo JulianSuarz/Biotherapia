@@ -7,21 +7,21 @@ import {getFirestore} from "firebase/firestore"
 // Your web app's Firebase configuration
 const firebaseConfig = {
 
-  apiKey: "AIzaSyDAZqniKK-kugU27LpT__BnCgizAZkgEAQ",
+  apiKey: "AIzaSyD0EpbSyy0-KHV5Efqss3DQug-JXXc-nnY",
 
-  authDomain: "biotherapia-4aef8.firebaseapp.com",
+  authDomain: "biotherapia-fb8e2.firebaseapp.com",
 
-  projectId: "biotherapia-4aef8",
+  projectId: "biotherapia-fb8e2",
 
-  storageBucket: "biotherapia-4aef8.appspot.com",
+  storageBucket: "biotherapia-fb8e2.appspot.com",
 
-  messagingSenderId: "709983661671",
+  messagingSenderId: "612950584815",
 
-  appId: "1:709983661671:web:79660f964333e06aebaec2",
+  appId: "1:612950584815:web:84fde5978c8add9d719a1a",
 
-  measurementId: "G-ZK9FE12QLZ"
-
+  measurementId: "G-ZE370X2XKQ"
 };
+
 
 // Initialize Firebase
 initializeApp(firebaseConfig);

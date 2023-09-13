@@ -1,15 +1,14 @@
 <template>
-    <v-sheet max-width="300" class="mx-auto">
       <v-form validate-on="submit lazy" @submit.prevent="submit">
         <v-text-field
           v-model="userName"
           :rules="rules"
-          label="User name"
+          label="Usuario"
           ></v-text-field>
          <v-text-field
           v-model="password"
           :rules="rules"
-          label="Password"
+          label="Contraseña"
           ></v-text-field>
         
   
@@ -21,7 +20,6 @@
           text="Submit"
         ></v-btn>
       </v-form>
-    </v-sheet>
   </template>
   
   <script>

@@ -5,6 +5,7 @@
     :items="desserts"
     :sort-by="[{ key: 'producto', order: 'asc' }]"
     class="elevation-1"
+    style="max-height: 100%;"
   >
     <template v-slot:top>
       <v-toolbar color="green"
@@ -33,7 +34,7 @@
           </template>
           <v-card>
             <v-card-title>
-              <span class="text-h5">Nuevo Producto</span>
+              <span class="text-h5">{{ formTitle }}</span>
             </v-card-title>
 
             <v-card-text>
@@ -111,7 +112,6 @@
       </v-toolbar>
     </template>
     <template v-slot:[`item.actions`]="{ item }">
->
       <v-icon
         size="small"
         class="me-2"
@@ -138,7 +138,7 @@
 </template>
 <script >
 import db from '@/firebase/init'
-import { addDoc, collection, getDocs, query } from 'firebase/firestore'
+import { addDoc, collection, getDocs, query , updateDoc , doc, deleteDoc } from 'firebase/firestore'
 
   export default {
     data: () => ({
@@ -154,11 +154,12 @@ import { addDoc, collection, getDocs, query } from 'firebase/firestore'
         { title: 'Descripcion', key: 'descripcion' },
         { title: 'Stock', key: 'stock' },
         { title: 'Precio', key: 'precio' },
-        { title: 'Actions', key: 'actions', sortable: false },
+        { title: 'Acciones', key: 'actions', sortable: false },
       ],
       desserts: [],
       editedIndex: -1,
       editedItem: {
+        keyid:0,
         producto: '',
         descripcion: '',
         stock: 0,
@@ -174,7 +175,7 @@ import { addDoc, collection, getDocs, query } from 'firebase/firestore'
 
     computed: {
       formTitle () {
-        return this.editedIndex === -1 ? 'New Item' : 'Edit Item'
+        return this.editedIndex === -1 ? 'Nuevo Producto' : 'Editar Producto'
       },
     },
 
@@ -196,19 +197,39 @@ import { addDoc, collection, getDocs, query } from 'firebase/firestore'
         const q = query(collection(db,'producto'));
         const result = await getDocs(q);
         result.forEach((doc)=>{
-          this.desserts.push(doc.data())
+          this.desserts.push({
+            keyid:doc.id,
+            producto:doc.data().producto,
+            descripcion:doc.data().descripcion,
+            stock:doc.data().stock,
+            precio:doc.data().precio,
+          })
         })
       },
       async crearProducto(){
         const colRef = collection(db,'producto');
         const dataObj = {
-          producto: this.editItem.producto,
-          descripcion: this.editItem.descripcion,
-          stock: this.editItem.stock,
-          precio: this.editItem.precio,
+          producto: this.editedItem.producto,
+          descripcion: this.editedItem.descripcion,
+          stock: this.editedItem.stock,
+          precio: this.editedItem.precio,
         }
         const docRef = await addDoc(colRef,dataObj)
         console.log(docRef.id)
+      },
+
+      async updateProductos(){
+        const ref = doc(db,'producto',this.editedItem.keyid)
+        await updateDoc(ref,{
+          producto:this.editedItem.producto,
+          descripcion:this.editedItem.descripcion,
+          stock: this.editedItem.stock,
+          precio: this.editedItem.precio,
+        })
+      },
+
+      async deleteProductos(){
+        await deleteDoc(doc(db,'producto',this.editedItem.keyid))
       },
 
       editItem (item) {
@@ -226,6 +247,7 @@ import { addDoc, collection, getDocs, query } from 'firebase/firestore'
       deleteItemConfirm () {
         this.desserts.splice(this.editedIndex, 1)
         this.closeDelete()
+        this.deleteProductos();
       },
 
       close () {
@@ -247,6 +269,7 @@ import { addDoc, collection, getDocs, query } from 'firebase/firestore'
       save () {
         if (this.editedIndex > -1) {
           Object.assign(this.desserts[this.editedIndex], this.editedItem)
+          this.updateProductos();
         } else {
           this.desserts.push(this.editedItem)
           this.crearProducto()
