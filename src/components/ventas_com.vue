@@ -1,17 +1,13 @@
 
 <template>
+  <v-sheet class="toolbar" :elevation="10" rounded>
   <v-data-table 
     :headers="headers"
     :items="desserts"
     :sort-by="[{ key: 'producto', order: 'asc' }]"
     class="elevation-1"
-    style="max-height: 100%;"
   >
     <template v-slot:top>
-      <v-toolbar color="green"
-        flat
-      >
-        <v-toolbar-title>INVENTARIO</v-toolbar-title>
         <v-divider
           class="mx-4"
           inset
@@ -24,9 +20,8 @@
         >
           <template v-slot:activator="{ props }">
             <v-btn
-              color="blue"
               dark
-              class="mb-2"
+              class="nproducto"
               v-bind="props"
             >
               Nuevo Producto
@@ -109,7 +104,6 @@
             </v-card-actions>
           </v-card>
         </v-dialog>
-      </v-toolbar>
     </template>
     <template v-slot:[`item.actions`]="{ item }">
       <v-icon
@@ -121,9 +115,16 @@
       </v-icon>
       <v-icon
         size="small"
+        class="me-2"
         @click="deleteItem(item.raw)"
       >
         mdi-delete
+      </v-icon>
+      <v-icon
+        size="small"
+        @click="editItem(item.raw)"
+      >
+        mdi mdi-plus-thick
       </v-icon>
     </template>
     <template v-slot:no-data>
@@ -135,6 +136,24 @@
       </v-btn>
     </template>
   </v-data-table>
+</v-sheet>
+<v-sheet class="compras" :elevation="10" rounded>
+  <v-table>
+    <thead>
+      <th>Producto</th>
+      <th>Cantidad</th>
+      <th>Precio</th>
+    </thead>
+    <tbody>
+      <tr>
+        <td></td>
+        <td></td>
+        <td></td>
+      </tr>
+    </tbody>
+    <v-btn class="btnventa">Confirmar Venta</v-btn>
+  </v-table>
+</v-sheet>
 </template>
 <script >
 import db from '@/firebase/init'
@@ -216,6 +235,8 @@ import { addDoc, collection, getDocs, query , updateDoc , doc, deleteDoc } from 
         }
         const docRef = await addDoc(colRef,dataObj)
         console.log(docRef.id)
+        this.clear()
+        this.listarProductos()
       },
 
       async updateProductos(){
@@ -225,13 +246,12 @@ import { addDoc, collection, getDocs, query , updateDoc , doc, deleteDoc } from 
           descripcion:this.editedItem.descripcion,
           stock: this.editedItem.stock,
           precio: this.editedItem.precio,
-        })
+        }) 
       },
 
       async deleteProductos(){
         await deleteDoc(doc(db,'producto',this.editedItem.keyid))
       },
-
       editItem (item) {
         this.editedIndex = this.desserts.indexOf(item)
         this.editedItem = Object.assign({}, item)
@@ -276,6 +296,10 @@ import { addDoc, collection, getDocs, query , updateDoc , doc, deleteDoc } from 
         }
         this.close()
       },
+
+      clear(){
+        this.desserts=[]
+      }
     },
   }
 </script> 
@@ -298,7 +322,29 @@ li {
 a {
   color: #42b983;
 }
+td{
+  text-align: center;
+}
 .msgdelete{
   text-align: center;
+}
+.nproducto{
+  width: 20%;
+  margin-left: 1%;
+  margin-bottom: 1%;
+  margin-top: -0.5%;
+}
+
+.toolbar{
+  max-height: 100%;
+  width: 70%;
+  margin: 1% 1% 1% 1% ;
+  float: left;
+}
+.compras{
+  width: 26%;
+  float: right;
+  margin: 1% 1% 1% 1% ;
+  min-height: 100%;
 }
 </style>
