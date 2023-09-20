@@ -4,8 +4,10 @@
   <v-data-table 
     :headers="headers"
     :items="desserts"
-    :sort-by="[{ key: 'producto', order: 'asc' }]"
     class="elevation-1"
+    height="710px"
+    show-footer="false"
+    
   >
     <template v-slot:top>
         <v-divider
@@ -18,7 +20,7 @@
           v-model="dialog"
           max-width="500px"
         >
-          <template v-slot:activator="{ props }">
+        <template v-slot:activator="{ props }">
             <v-btn
               dark
               class="nproducto"
@@ -122,7 +124,7 @@
       </v-icon>
       <v-icon
         size="small"
-        @click="editItem(item.raw)"
+        @click="addToCompras(item.raw)"
       >
         mdi mdi-plus-thick
       </v-icon>
@@ -138,21 +140,21 @@
   </v-data-table>
 </v-sheet>
 <v-sheet class="compras" :elevation="10" rounded>
-  <v-table>
-    <thead>
-      <th>Producto</th>
-      <th>Cantidad</th>
-      <th>Precio</th>
-    </thead>
-    <tbody>
-      <tr>
-        <td></td>
-        <td></td>
-        <td></td>
-      </tr>
-    </tbody>
-    <v-btn class="btnventa">Confirmar Venta</v-btn>
-  </v-table>
+  <v-data-table
+      :headers="headersCompras"
+      :items="compras"
+      show-footer="false"
+    >
+      <template v-slot:[`item.actions`]="{ item }">
+        <v-icon
+          size="small"
+          @click="removeFromCompras(item.raw)"
+        >
+          mdi-delete
+        </v-icon>
+      </template>
+    </v-data-table>
+  <v-btn class="btnventa">Confirmar Venta</v-btn>
 </v-sheet>
 </template>
 <script >
@@ -173,7 +175,7 @@ import { addDoc, collection, getDocs, query , updateDoc , doc, deleteDoc } from 
         { title: 'Descripcion', key: 'descripcion' },
         { title: 'Stock', key: 'stock' },
         { title: 'Precio', key: 'precio' },
-        { title: 'Acciones', key: 'actions', sortable: false },
+        { title: '', key: 'actions', sortable: false },
       ],
       desserts: [],
       editedIndex: -1,
@@ -190,6 +192,14 @@ import { addDoc, collection, getDocs, query , updateDoc , doc, deleteDoc } from 
         stock: 0,
         precio: 0,
       },
+      compras: [],
+      headersCompras: [
+        {title:'Producto',key:'producto'},
+        {title:'Cantidad',key:'cantidad'},
+        {title:'Precio',key:'precio'},
+        { title: '', key: 'actions', sortable: false }
+      ],
+      counters: {},
     }),
 
     computed: {
@@ -252,7 +262,23 @@ import { addDoc, collection, getDocs, query , updateDoc , doc, deleteDoc } from 
       async deleteProductos(){
         await deleteDoc(doc(db,'producto',this.editedItem.keyid))
       },
-      editItem (item) {
+
+      addToCompras(item) {
+        const producto = item.producto
+        if (!this.counters[producto]) {
+        this.counters[producto] = 1;
+      }
+
+      this.compras.push({
+        producto: item.producto,
+        precio: item.precio*this.counters[producto],
+        cantidad: this.counters[producto]++,
+      });
+    },
+    removeFromCompras(item) {
+      this.compras = this.compras.filter(compra => compra.producto !== item.producto);
+    },
+    editItem (item) {
         this.editedIndex = this.desserts.indexOf(item)
         this.editedItem = Object.assign({}, item)
         this.dialog = true
@@ -300,13 +326,12 @@ import { addDoc, collection, getDocs, query , updateDoc , doc, deleteDoc } from 
       clear(){
         this.desserts=[]
       }
-    },
-  }
+  },
+};
 </script> 
 <style scoped>
 .elevation-1{
   background-color: rgba(172, 255, 47, 0.189);
-
 }
 h3 {
   margin: 40px 0 0;
@@ -329,14 +354,14 @@ td{
   text-align: center;
 }
 .nproducto{
-  width: 20%;
+  width: 40%;
   margin-left: 1%;
-  margin-bottom: 1%;
+  margin-bottom: 1.5%;
   margin-top: -0.5%;
 }
 
 .toolbar{
-  max-height: 100%;
+  max-height: 95%;
   width: 70%;
   margin: 1% 1% 1% 1% ;
   float: left;
@@ -345,6 +370,10 @@ td{
   width: 26%;
   float: right;
   margin: 1% 1% 1% 1% ;
-  min-height: 100%;
+  min-height: 95%;
+}
+.btnventa{
+  width: 50%;
+  margin-left: 25%;
 }
 </style>
