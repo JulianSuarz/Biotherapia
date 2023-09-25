@@ -1,11 +1,9 @@
-
 <template>
-  <v-sheet class="toolbar" :elevation="10" rounded>
   <v-data-table 
     :headers="headers"
     :items="desserts"
     class="elevation-1"
-    height="710px"
+    height="calc(100%)"
     show-footer="false"
     
   >
@@ -16,6 +14,69 @@
           vertical
         ></v-divider>
         <v-spacer></v-spacer>
+      <v-dialog
+        v-model="dialogv"
+        persistent
+        
+      >
+        <template v-slot:activator="{ props }">
+          <v-btn
+            class="btnventa"
+            color="primary"
+            v-bind="props"
+          >
+            Venta
+          </v-btn>
+        </template>
+        <v-card class="cardventa">
+          <v-card-title class="text-h5">
+            Venta
+          </v-card-title>
+          <v-card-text>
+            <v-table class="table">
+              <thead>
+                <tr>
+                  <th>Producto</th>
+                  <th>Cantidad</th>
+                  <th>Precio</th>
+                  <th>Subtotal</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="(producto, index) in productosVenta" :key="index">
+                    <td>{{ producto.producto }}</td>
+                    <td>
+                  <input
+                    type="number"
+                    v-model="producto.stock"
+                    @input="subtotalVenta(producto)"
+                  />
+                </td>
+                    <td>{{ producto.precio }}</td>
+                    <td>{{ parseInt(producto.stock) * parseInt(producto.precio)}}</td>
+                  </tr>
+              </tbody>  
+          </v-table>
+          </v-card-text>
+          <v-card-actions >
+            <v-spacer></v-spacer>
+            <v-btn 
+              color="green-darken-1"
+              variant="text"
+              @click="dialogv = false"
+            >
+              Cancelar
+            </v-btn>
+            <v-btn
+              color="green-darken-1"
+              variant="text"
+              @click="dialogv = false"
+            >
+              Realizar
+            </v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
         <v-dialog
           v-model="dialog"
           max-width="500px"
@@ -138,24 +199,6 @@
       </v-btn>
     </template>
   </v-data-table>
-</v-sheet>
-<v-sheet class="compras" :elevation="10" rounded>
-  <v-data-table
-      :headers="headersCompras"
-      :items="compras"
-      show-footer="false"
-    >
-      <template v-slot:[`item.actions`]="{ item }">
-        <v-icon
-          size="small"
-          @click="removeFromCompras(item.raw)"
-        >
-          mdi-delete
-        </v-icon>
-      </template>
-    </v-data-table>
-  <v-btn class="btnventa">Confirmar Venta</v-btn>
-</v-sheet>
 </template>
 <script >
 import db from '@/firebase/init'
@@ -163,170 +206,162 @@ import { addDoc, collection, getDocs, query , updateDoc , doc, deleteDoc } from 
 
   export default {
     data: () => ({
-      dialog: false,
-      dialogDelete: false,
-      headers: [
-        {
-          title: 'Producto',
-          align: 'start',
-          sortable: false,
-          key: 'producto',
+        dialogv:false,
+        dialog: false,
+        dialogDelete: false,
+        headers: [
+            {
+                title: 'Producto',
+                align: 'start',
+                sortable: false,
+                key: 'producto',
+            },
+            { title: 'Descripcion', key: 'descripcion' },
+            { title: 'Stock', key: 'stock' },
+            { title: 'Precio', key: 'precio' },
+            { title: '', key: 'actions', sortable: false },
+        ],
+        desserts: [],
+        editedIndex: -1,
+        editedItem: {
+            keyid: 0,
+            producto: '',
+            descripcion: '',
+            stock: 0,
+            precio: 0,
         },
-        { title: 'Descripcion', key: 'descripcion' },
-        { title: 'Stock', key: 'stock' },
-        { title: 'Precio', key: 'precio' },
-        { title: '', key: 'actions', sortable: false },
-      ],
-      desserts: [],
-      editedIndex: -1,
-      editedItem: {
-        keyid:0,
-        producto: '',
-        descripcion: '',
-        stock: 0,
-        precio: 0,
-      },
-      defaultItem: {
-        producto: '',
-        descripcion: '',
-        stock: 0,
-        precio: 0,
-      },
-      compras: [],
-      headersCompras: [
-        {title:'Producto',key:'producto'},
-        {title:'Cantidad',key:'cantidad'},
-        {title:'Precio',key:'precio'},
-        { title: '', key: 'actions', sortable: false }
-      ],
-      counters: {},
+        defaultItem: {
+            producto: '',
+            descripcion: '',
+            stock: 0,
+            precio: 0,
+        },
+        compras: [],
+        headersCompras: [
+            { title: 'Producto', key: 'producto' },
+            { title: 'Cantidad', key: 'cantidad' },
+            { title: 'Precio', key: 'precio' },
+            { title: '', key: 'actions', sortable: false }
+        ],
+        counters: {},
+        productosVenta:[]
     }),
-
     computed: {
-      formTitle () {
-        return this.editedIndex === -1 ? 'Nuevo Producto' : 'Editar Producto'
-      },
+        formTitle() {
+            return this.editedIndex === -1 ? 'Nuevo Producto' : 'Editar Producto';
+        },
+        items() {
+            return Array.from({ length: this.stock }, (v, i) => i + 1);
+        },
     },
-
     watch: {
-      dialog (val) {
-        val || this.close()
-      },
-      dialogDelete (val) {
-        val || this.closeDelete()
-      },
+        dialog(val) {
+            val || this.close();
+        },
+        dialogDelete(val) {
+            val || this.closeDelete();
+        },
     },
-
-    created () {
-      this.listarProductos()
+    created() {
+        this.listarProductos();
     },
-
     methods: {
-      async listarProductos(){
-        const q = query(collection(db,'producto'));
-        const result = await getDocs(q);
-        result.forEach((doc)=>{
-          this.desserts.push({
-            keyid:doc.id,
-            producto:doc.data().producto,
-            descripcion:doc.data().descripcion,
-            stock:doc.data().stock,
-            precio:doc.data().precio,
-          })
-        })
+        async listarProductos() {
+            const q = query(collection(db, 'producto'));
+            const result = await getDocs(q);
+            result.forEach((doc) => {
+                this.desserts.push({
+                    keyid: doc.id,
+                    producto: doc.data().producto,
+                    descripcion: doc.data().descripcion,
+                    stock: doc.data().stock,
+                    precio: doc.data().precio,
+                });
+            });
+        },
+        async crearProducto() {
+            const colRef = collection(db, 'producto');
+            const dataObj = {
+                producto: this.editedItem.producto,
+                descripcion: this.editedItem.descripcion,
+                stock: this.editedItem.stock,
+                precio: this.editedItem.precio,
+            };
+            const docRef = await addDoc(colRef, dataObj);
+            console.log(docRef.id);
+            this.clear();
+            this.listarProductos();
+        },
+        async updateProductos() {
+            const ref = doc(db, 'producto', this.editedItem.keyid);
+            await updateDoc(ref, {
+                producto: this.editedItem.producto,
+                descripcion: this.editedItem.descripcion,
+                stock: this.editedItem.stock,
+                precio: this.editedItem.precio,
+            });
+        },
+        async deleteProductos() {
+            await deleteDoc(doc(db, 'producto', this.editedItem.keyid));
+        },
+        addToCompras(item) {
+            let nuevaVenta = {
+              producto:item.producto,
+              stock:item.stock,
+              precio:item.precio,
+            }
+            this.productosVenta.push(nuevaVenta)
+        },
+        subtotalVenta(producto) {
+        producto.subtotal = parseInt(producto.stock) * parseInt(producto.precio);
       },
-      async crearProducto(){
-        const colRef = collection(db,'producto');
-        const dataObj = {
-          producto: this.editedItem.producto,
-          descripcion: this.editedItem.descripcion,
-          stock: this.editedItem.stock,
-          precio: this.editedItem.precio,
+        removeFromCompras(item) {
+            this.compras = this.compras.filter(compra => compra.producto !== item.producto);
+        },
+        editItem(item) {
+            this.editedIndex = this.desserts.indexOf(item);
+            this.editedItem = Object.assign({}, item);
+            this.dialog = true;
+        },
+        deleteItem(item) {
+            this.editedIndex = this.desserts.indexOf(item);
+            this.editedItem = Object.assign({}, item);
+            this.dialogDelete = true;
+        },
+        deleteItemConfirm() {
+            this.desserts.splice(this.editedIndex, 1);
+            this.closeDelete();
+            this.deleteProductos();
+        },
+        close() {
+            this.dialog = false;
+            this.$nextTick(() => {
+                this.editedItem = Object.assign({}, this.defaultItem);
+                this.editedIndex = -1;
+            });
+        },
+        closeDelete() {
+            this.dialogDelete = false;
+            this.$nextTick(() => {
+                this.editedItem = Object.assign({}, this.defaultItem);
+                this.editedIndex = -1;
+            });
+        },
+        save() {
+            if (this.editedIndex > -1) {
+                Object.assign(this.desserts[this.editedIndex], this.editedItem);
+                this.updateProductos();
+            }
+            else {
+                this.desserts.push(this.editedItem);
+                this.crearProducto();
+            }
+            this.close();
+        },
+        clear() {
+            this.desserts = [];
         }
-        const docRef = await addDoc(colRef,dataObj)
-        console.log(docRef.id)
-        this.clear()
-        this.listarProductos()
-      },
-
-      async updateProductos(){
-        const ref = doc(db,'producto',this.editedItem.keyid)
-        await updateDoc(ref,{
-          producto:this.editedItem.producto,
-          descripcion:this.editedItem.descripcion,
-          stock: this.editedItem.stock,
-          precio: this.editedItem.precio,
-        }) 
-      },
-
-      async deleteProductos(){
-        await deleteDoc(doc(db,'producto',this.editedItem.keyid))
-      },
-
-      addToCompras(item) {
-        const producto = item.producto
-        if (!this.counters[producto]) {
-        this.counters[producto] = 1;
-      }
-
-      this.compras.push({
-        producto: item.producto,
-        precio: item.precio*this.counters[producto],
-        cantidad: this.counters[producto]++,
-      });
     },
-    removeFromCompras(item) {
-      this.compras = this.compras.filter(compra => compra.producto !== item.producto);
-    },
-    editItem (item) {
-        this.editedIndex = this.desserts.indexOf(item)
-        this.editedItem = Object.assign({}, item)
-        this.dialog = true
-      },
-
-      deleteItem (item) {
-        this.editedIndex = this.desserts.indexOf(item)
-        this.editedItem = Object.assign({}, item)
-        this.dialogDelete = true
-      },
-
-      deleteItemConfirm () {
-        this.desserts.splice(this.editedIndex, 1)
-        this.closeDelete()
-        this.deleteProductos();
-      },
-
-      close () {
-        this.dialog = false
-        this.$nextTick(() => {
-          this.editedItem = Object.assign({}, this.defaultItem)
-          this.editedIndex = -1
-        })
-      },
-
-      closeDelete () {
-        this.dialogDelete = false
-        this.$nextTick(() => {
-          this.editedItem = Object.assign({}, this.defaultItem)
-          this.editedIndex = -1
-        })
-      },
-
-      save () {
-        if (this.editedIndex > -1) {
-          Object.assign(this.desserts[this.editedIndex], this.editedItem)
-          this.updateProductos();
-        } else {
-          this.desserts.push(this.editedItem)
-          this.crearProducto()
-        }
-        this.close()
-      },
-
-      clear(){
-        this.desserts=[]
-      }
-  },
 };
 </script> 
 <style scoped>
@@ -357,7 +392,6 @@ td{
   width: 40%;
   margin-left: 1%;
   margin-bottom: 1.5%;
-  margin-top: -0.5%;
 }
 
 .toolbar{
@@ -373,7 +407,12 @@ td{
   min-height: 95%;
 }
 .btnventa{
-  width: 50%;
-  margin-left: 25%;
+  width: 15%;
+  float: right;
+  margin-right: 1%;
+}
+.cardventa{
+  width: 40%;
+  margin: 0 auto;
 }
 </style>
