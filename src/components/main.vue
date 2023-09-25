@@ -1,62 +1,60 @@
 <template>
-<div :id="main">
-    <h1>BioTherapia</h1>
-  </div>
-  <v-carousel class="carrusel"
-    cycle
-    height="400"
-    hide-delimiter-background
-    show-arrows="hover"
-  >
+  <div :id="main">
+      <h1 class="nombreempresa">BioTherapia</h1>
+    </div>
+  
+    <v-carousel cycle :interval="2500" show-arrows="hover"
+    height="600"
+    cover
+    hide-delimiter-background class="carrusel">
+    
     <v-carousel-item
-      v-for="(slide, i) in slides"
-      :key="i"
-    >
-      <v-sheet
-        :color="colors[i]"
-        height="100%"
-      >
-        <div class="d-flex fill-height justify-center align-center">
-          <div class="text-h2">
-            {{ slide }} Slide
-          </div>
-        </div>
-      </v-sheet>
-    </v-carousel-item>
+      src="../assets/acupuntura.jpg"
+      cover
+    ></v-carousel-item>
+  
+    <v-carousel-item
+    src="../assets/aromaterapia.jpg"
+      cover
+    ></v-carousel-item>
+  
+    <v-carousel-item
+    src="../assets/aromaterapia2.jpg"
+      cover
+    ></v-carousel-item>
+    <v-carousel-item
+      src="../assets/maderoterapia.jpg"
+      cover
+    ></v-carousel-item>
   </v-carousel>
-</template>
-
-<script>
-export default {
-  name:'main_comp',
-    data () {
-      return {
-        colors: [
-          'indigo',
-          'warning',
-          'pink darken-2',
-          'red lighten-1',
-          'deep-purple accent-4',
-        ],
-        slides: [
-          'First',
-          'Second',
-          'Third',
-          'Fourth',
-          'Fifth',
-        ],
-      }
-    }
-}
-  </script>
-<style scoped>
-h1{
-  text-align: center;
-  font-size: 800%; 
-}
-.carrusel{
-  padding-left: 15px;
-  padding-right: 15px;
-}
-
-</style>
+  
+  </template>
+  
+  <script>
+  export default {
+    name:'main_comp'}
+  
+    </script>
+  <style scoped>
+  h1{
+    text-align: center;
+    font-size: 800%; 
+  }
+  .nombreempresa{
+    color: #33691E
+  ;
+  }
+  .carrusel{
+    margin-top: 20px;
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+  .v-carousel__controls{
+    width: 1030px;
+  }
+  p{
+  margin-left: 20px;
+  margin-right: 20px;
+  
+  }
+  </style>
