@@ -60,7 +60,6 @@ export default {
     data: () => ({
     //
     }),
-    /* components: { Home } */
 }
 </script>
 <style>
