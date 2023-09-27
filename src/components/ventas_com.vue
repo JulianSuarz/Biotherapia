@@ -3,7 +3,7 @@
     :headers="headers"
     :items="desserts"
     class="elevation-1"
-    height="calc(100%)"
+    height="calc(80vh)"
     show-footer="false"
     
   >
