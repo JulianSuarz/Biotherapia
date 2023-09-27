@@ -53,7 +53,7 @@
                   />
                 </td>
                     <td>{{ producto.precio }}</td>
-                    <td>{{ parseInt(producto.stock) * parseInt(producto.precio)}}</td>
+                    <td>{{ parseInt(producto.cantidad) * parseInt(producto.precio)}}</td>
                   </tr>
               </tbody>
               <v-alert
@@ -210,6 +210,8 @@
 <script >
 import db from '@/firebase/init'
 import { addDoc, collection, getDocs, query , updateDoc , doc, deleteDoc } from 'firebase/firestore'
+import jsPDF from 'jspdf';
+require('jspdf-autotable')
 
   export default {
     data: () => ({
@@ -335,6 +337,7 @@ import { addDoc, collection, getDocs, query , updateDoc , doc, deleteDoc } from 
                   stock: producto.stock = stockAct
                 }
                 updateDoc(ref,updateData)
+                this.generatePDF()
                 this.close()
               }
             }
@@ -347,6 +350,24 @@ import { addDoc, collection, getDocs, query , updateDoc , doc, deleteDoc } from 
         removeFromCompras(item) {
             this.compras = this.compras.filter(compra => compra.producto !== item.producto);
         },
+
+        async generatePDF() {
+          let columns = [
+            { title: "Producto", dataKey: "producto" },
+            { title: "Cantidad", dataKey: "cantidad" },
+            {title: "Precio", dataKey:"precio"}
+          ];
+            let registros = this.productosVenta;
+            let doc = new jsPDF("p", "pt");
+            doc.autoTable(columns, registros, {
+              margin: { top: 60 },
+              addPageContent: function () {
+                doc.text("Usuarios", 40, 30);
+              },
+            });
+            doc.save("Usuarios.pdf");
+          },
+
         editItem(item) {
             this.editedIndex = this.desserts.indexOf(item);
             this.editedItem = Object.assign({}, item);
