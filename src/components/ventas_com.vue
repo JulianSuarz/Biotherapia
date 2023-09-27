@@ -48,14 +48,20 @@
                     <td>
                   <input
                     type="number"
-                    v-model="producto.stock"
+                    v-model="producto.cantidad"
                     @input="subtotalVenta(producto)"
                   />
                 </td>
                     <td>{{ producto.precio }}</td>
                     <td>{{ parseInt(producto.stock) * parseInt(producto.precio)}}</td>
                   </tr>
-              </tbody>  
+              </tbody>
+              <v-alert
+              v-if="faltaStock"
+              type="error"
+              outline>
+                Stock Insuficiente
+              </v-alert>
           </v-table>
           </v-card-text>
           <v-card-actions >
@@ -70,7 +76,8 @@
             <v-btn
               color="green-darken-1"
               variant="text"
-              @click="dialogv = false"
+              @click="confirmVenta()"
+
             >
               Realizar
             </v-btn>
@@ -304,16 +311,38 @@ import { addDoc, collection, getDocs, query , updateDoc , doc, deleteDoc } from 
         async deleteProductos() {
             await deleteDoc(doc(db, 'producto', this.editedItem.keyid));
         },
-        addToCompras(item) {
-            let nuevaVenta = {
+        addToCompras(item) {  
+          let nuevaVenta = {
+              keyid:item.keyid,
               producto:item.producto,
-              stock:item.stock,
+              cantidad:1,
               precio:item.precio,
             }
             this.productosVenta.push(nuevaVenta)
         },
+        async confirmVenta(){
+          this.productosVenta.forEach((producto)=>{
+            const productoLista = this.desserts.find(item => item.keyid=== producto.keyid)
+            if (productoLista){
+              const cantidadVendida = parseInt(producto.cantidad)
+              if (cantidadVendida > productoLista.stock){
+                this.faltaStock = true
+                return;
+              } else {
+                const stockAct = productoLista.stock -= cantidadVendida
+                const ref = doc(db,'producto',producto.keyid)
+                const updateData = {
+                  stock: producto.stock = stockAct
+                }
+                updateDoc(ref,updateData)
+                this.close()
+              }
+            }
+            
+          })
+        },
         subtotalVenta(producto) {
-        producto.subtotal = parseInt(producto.stock) * parseInt(producto.precio);
+        producto.subtotal = parseInt(producto.cantidad) * parseInt(producto.precio);
       },
         removeFromCompras(item) {
             this.compras = this.compras.filter(compra => compra.producto !== item.producto);
@@ -335,6 +364,7 @@ import { addDoc, collection, getDocs, query , updateDoc , doc, deleteDoc } from 
         },
         close() {
             this.dialog = false;
+            this.dialogv = false
             this.$nextTick(() => {
                 this.editedItem = Object.assign({}, this.defaultItem);
                 this.editedIndex = -1;
