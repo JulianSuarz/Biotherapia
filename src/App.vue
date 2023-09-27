@@ -1,6 +1,6 @@
 <template>
   <v-app>
-  <v-toolbar color="#43A047">
+  <!-- <v-toolbar color="#43A047">
 
     <v-img :max-width="70" id="logonav" src="../src/assets/logoBiotherapia.png"></v-img>
     <v-toolbar-title>BioTherapia</v-toolbar-title>
@@ -27,7 +27,8 @@
       </v-main>
     </v-layout>
   </v-card>
-  <v-footer></v-footer>
+  <v-footer></v-footer> -->
+  <Home></Home>
 </v-app>
 </template>
 
@@ -54,12 +55,14 @@ margin-top: 64px;
 }
 </style>
 <script>
-/* import Home from './components/home.vue'; */
+import Home from './components/home.vue';
+
 export default {
     name: 'App',
     data: () => ({
     //
     }),
+    components: { Home }
 }
 </script>
 <style>
