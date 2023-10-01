@@ -4,9 +4,7 @@
     :items="desserts"
     class="elevation-1"
     height="calc(80vh)"
-    show-footer="false"
-    
-  >
+    >
     <template v-slot:top>
         <v-divider
           class="mx-4"
@@ -81,6 +79,19 @@
             >
               Realizar
             </v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
+      <v-dialog
+      v-model="dialogAdd">
+        <v-card class="cardstock" title="Agregar Stock">
+          <v-row no-gutters>
+          <input type="number" v-model="stockN">
+          </v-row>
+          <v-card-actions>
+            <v-spacer></v-spacer>
+            <v-btn @click="close()">Cancelar</v-btn>
+            <v-btn @click="confirmAddStock()">Agregar</v-btn>
           </v-card-actions>
         </v-card>
       </v-dialog>
@@ -175,8 +186,8 @@
           </v-card>
         </v-dialog>
     </template>
-    <template v-slot:[`item.actions`]="{ item }">
-      <v-icon
+    <template  v-slot:[`item.actions`]="{ item }">
+        <v-icon 
         size="small"
         class="me-2"
         @click="editItem(item.raw)"
@@ -192,9 +203,15 @@
       </v-icon>
       <v-icon
         size="small"
-        @click="addToCompras(item.raw)"
+        @click="addStock(item.raw)"
       >
         mdi mdi-plus-thick
+      </v-icon>
+      <v-icon
+        size="small"
+        @click="addToCompras(item.raw)"
+      >
+        mdi mdi-cart
       </v-icon>
     </template>
     <template v-slot:no-data>
@@ -212,9 +229,9 @@ import db from '@/firebase/init'
 import { addDoc, collection, getDocs, query , updateDoc , doc, deleteDoc } from 'firebase/firestore'
 import jsPDF from 'jspdf';
 require('jspdf-autotable')
-
   export default {
     data: () => ({
+        dialogAdd:false,
         dialogv:false,
         dialog: false,
         dialogDelete: false,
@@ -240,6 +257,7 @@ require('jspdf-autotable')
             precio: 0,
         },
         defaultItem: {
+            keyid:0,
             producto: '',
             descripcion: '',
             stock: 0,
@@ -253,7 +271,7 @@ require('jspdf-autotable')
             { title: '', key: 'actions', sortable: false }
         ],
         counters: {},
-        productosVenta:[]
+        productosVenta:[],
     }),
     computed: {
         formTitle() {
@@ -344,9 +362,20 @@ require('jspdf-autotable')
             
           })
         },
+        async confirmAddStock(){
+          const refdoc = doc(db,'producto',this.editedItem.keyid)
+          let stockNuevo = this.editedItem.stock + this.stockN
+          const updateStock = {
+            stock: this.editedItem.stock = stockNuevo
+          }
+          await updateDoc(refdoc,updateStock)
+          this.clear()
+          this.listarProductos()
+          this.close()
+        },
         subtotalVenta(producto) {
         producto.subtotal = parseInt(producto.cantidad) * parseInt(producto.precio);
-      },
+        },
         removeFromCompras(item) {
             this.compras = this.compras.filter(compra => compra.producto !== item.producto);
         },
@@ -378,6 +407,11 @@ require('jspdf-autotable')
             this.editedItem = Object.assign({}, item);
             this.dialogDelete = true;
         },
+        addStock(item){
+          this.dialogAdd = true;
+          this.editedItem = Object.assign({}, item);
+          this.stockN = 1
+        },
         deleteItemConfirm() {
             this.desserts.splice(this.editedIndex, 1);
             this.closeDelete();
@@ -385,7 +419,8 @@ require('jspdf-autotable')
         },
         close() {
             this.dialog = false;
-            this.dialogv = false
+            this.dialogv = false;
+            this.dialogAdd = false;
             this.$nextTick(() => {
                 this.editedItem = Object.assign({}, this.defaultItem);
                 this.editedIndex = -1;
@@ -419,6 +454,7 @@ require('jspdf-autotable')
 .elevation-1{
   background-color: rgba(172, 255, 47, 0.189);
 }
+
 h3 {
   margin: 40px 0 0;
 }
@@ -465,5 +501,11 @@ td{
 .cardventa{
   width: 40%;
   margin: 0 auto;
+}
+.cardstock{
+  width: 20%;
+  margin: 0 auto;
+  display: grid;
+  place-items: center;
 }
 </style>
