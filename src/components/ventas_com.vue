@@ -52,8 +52,9 @@
                   />
                 </td>
                     <td>{{ producto.precio }}</td>
-                    <td>{{ parseInt(producto.cantidad) * parseInt(producto.precio)}}</td>
+                    <td>{{ subtotal }}</td>
                   </tr>
+                  <strong>{{ totalSubtotals }}</strong>
               </tbody>
               <v-alert
               v-if="faltaStock"
@@ -279,6 +280,7 @@ require('jspdf-autotable')
         ],
         counters: {},
         productosVenta:[],
+        subtotal:0,
     }),
     computed: {
         formTitle() {
@@ -286,6 +288,11 @@ require('jspdf-autotable')
         },
         items() {
             return Array.from({ length: this.stock }, (v, i) => i + 1);
+        },
+        totalSubtotals() {
+          return this.productosVenta.reduce((total, producto) => {
+          return total + (parseInt(producto.cantidad) * parseInt(producto.precio));
+          }, 0);
         },
     },
     watch: {
@@ -350,6 +357,9 @@ require('jspdf-autotable')
               precio:item.precio,
             }
             this.productosVenta.push(nuevaVenta)
+            this.productosVenta.forEach((producto)=>{
+            this.subtotal = producto.precio
+          })
           }
         },
         async confirmVenta(){
@@ -387,7 +397,7 @@ require('jspdf-autotable')
           this.close()
         },
         subtotalVenta(producto) {
-        producto.subtotal = parseInt(producto.cantidad) * parseInt(producto.precio);
+        this.subtotal = parseInt(producto.cantidad) * parseInt(producto.precio);
         },
         removeFromCompras(item) {
             this.compras = this.compras.filter(compra => compra.producto !== item.producto);
@@ -395,19 +405,32 @@ require('jspdf-autotable')
 
         async generatePDF() {
           let columns = [
-            { title: "Producto", dataKey: "producto" },
-            { title: "Cantidad", dataKey: "cantidad" },
-            {title: "Precio", dataKey:"precio"}
+            { title: "", dataKey: "producto" },
+            { title: "", dataKey: "cantidad" },
+            {title: "", dataKey:"precio"}
           ];
             let registros = this.productosVenta;
+            let total = this.totalSubtotals;
             let doc = new jsPDF("p", "pt");
+            const currentDate = new Date();
+
+
+            const formattedDate = `${currentDate.getDate()}/${currentDate.getMonth() + 1}/${currentDate.getFullYear()}`;
+            const formattedTime = `${currentDate.getHours()}:${currentDate.getMinutes()}:${currentDate.getSeconds()}`;
+            const tableHeight = registros.length * 20 + 40;
             doc.autoTable(columns, registros, {
-              margin: { top: 60 },
+              margin: { top: 70 },
               addPageContent: function () {
-                doc.text("Usuarios", 40, 30);
+                doc.text("<<<BIOTHERAPIA>>>", 200, 30);
+                doc.text(`Fecha: ${formattedDate}`, 160, 50);
+                doc.text(`Hora: ${formattedTime}`, 300, 50);
+                doc.text(`Total: ${total}`, 120, tableHeight );
+                
               },
             });
-            doc.save("Usuarios.pdf");
+            if (confirm("¿Estás seguro de que deseas descargar el Informe de Venta?")) {
+            doc.save(`Informe ${formattedDate}.pdf`);
+            }
           },
 
         editItem(item) {
