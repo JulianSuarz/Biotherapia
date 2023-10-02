@@ -1,9 +1,10 @@
 <template>
   <v-data-table 
-    :headers="headers"
+    :headers="  headers"
     :items="desserts"
     class="elevation-1"
     height="calc(80vh)"
+    items-per-page="-1"
     >
     <template v-slot:top>
         <v-divider
@@ -223,6 +224,11 @@
       </v-btn>
     </template>
   </v-data-table>
+  <v-snackbar
+  v-model="snbAdd"
+  timeout="2000">
+    <div style="text-align: center;">El producto ya esta agregado</div>
+  </v-snackbar>
 </template>
 <script >
 import db from '@/firebase/init'
@@ -231,6 +237,7 @@ import jsPDF from 'jspdf';
 require('jspdf-autotable')
   export default {
     data: () => ({
+        snbAdd:false,
         dialogAdd:false,
         dialogv:false,
         dialog: false,
@@ -245,7 +252,7 @@ require('jspdf-autotable')
             { title: 'Descripcion', key: 'descripcion' },
             { title: 'Stock', key: 'stock' },
             { title: 'Precio', key: 'precio' },
-            { title: '', key: 'actions', sortable: false },
+            { title: '', key: 'actions', sortable: false},
         ],
         desserts: [],
         editedIndex: -1,
@@ -331,14 +338,19 @@ require('jspdf-autotable')
         async deleteProductos() {
             await deleteDoc(doc(db, 'producto', this.editedItem.keyid));
         },
-        addToCompras(item) {  
-          let nuevaVenta = {
+        addToCompras(item) { 
+          let ver = this.productosVenta.find((producto)=>item.keyid === producto.keyid)
+          if (ver){
+            this.snbAdd = true;
+          } else  {
+            let nuevaVenta = {
               keyid:item.keyid,
               producto:item.producto,
               cantidad:1,
               precio:item.precio,
             }
             this.productosVenta.push(nuevaVenta)
+          }
         },
         async confirmVenta(){
           this.productosVenta.forEach((producto)=>{
@@ -355,12 +367,13 @@ require('jspdf-autotable')
                   stock: producto.stock = stockAct
                 }
                 updateDoc(ref,updateData)
-                this.generatePDF()
-                this.close()
               }
             }
             
           })
+              this.generatePDF()
+              this.close()
+              this.clearVenta()
         },
         async confirmAddStock(){
           const refdoc = doc(db,'producto',this.editedItem.keyid)
@@ -446,6 +459,9 @@ require('jspdf-autotable')
         },
         clear() {
             this.desserts = [];
+        },
+        clearVenta(){
+          this.productosVenta=[]
         }
     },
 };

@@ -28,7 +28,6 @@
       </v-main>
     </v-layout>
   </v-card>
-  <v-footer></v-footer>
 </v-app>
 </template>
   
@@ -41,7 +40,6 @@
 
 .main {
   background-color: #C8E6C9;
-  height: 93vh;
 }
 
 #logonav {
