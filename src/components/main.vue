@@ -11,71 +11,62 @@
       <v-carousel-item src="../assets/maderoterapia.jpg" cover></v-carousel-item>
     </v-carousel>
   </div>
-  <!-- <v-btn block 
-  :loading="active">
-  hola
-  </v-btn> -->
-  <button class="loginbutton" @click="showLoginPopup">Login</button>
-
-  <div v-if="showPopup" class="login-popup">
-    <!-- Formulario de inicio de sesión -->
-    <h2>Iniciar sesión</h2>
-    <form>
-      <div class="loginLogo">
-        <v-img src="../assets/logoBiotherapia.png" height="200px"></v-img>
-      </div>
-      <br />
-      <input type="text" id="username" v-model="username" placeholder="Ingrese su Usuario" />
-      <input type="password" id="password" v-model="password" placeholder="Ingrese su Contraseña" />
-      <div class="buttonsContainer">
-        <button class='loginButton' @click="login">Iniciar sesión</button>
-        <button class="cancelLogin" @click="cancelLogin">Cancelar</button>
-
-      </div>
-    </form>
-  </div>
 </template>
 
 <script>
-// import firebase from 'firebase'; // Asegúrate de importar Firebase correctamente
+import db from '@/firebase/init'
+import { collection, getDocs, query } from 'firebase/firestore'
 export default {
   name: 'MainComponent',
   data() {
     return {
       showPopup: false,
       username: '',
-      password: ''
+      password: '',
+      users:[],
     };
   },
   methods: {
-    showLoginPopup() {
-      this.showPopup = true;
+    async listarUsuarios(){
+        const q = query(collection(db,'usuarios'));
+        const result = await getDocs(q);
+        result.forEach((doc)=>{
+          this.users.push({
+            usuario:doc.data().user,
+            pass:doc.data().password,
+          })
+        })
+        console.log(this.users)
+      },
+    async verificacion(){
+      const vUser = this.users.find((user)=> user.usuario === this.username && user.pass === this.password);
+      if (vUser){
+        console.log("Entrando")
+        this.$router.push({path:'/home'})
+      }
     },
-    // login() {
-    //   // Lógica de autenticación utilizando Firebase
-    //   firebase
-    //     .auth(),
-    //     .signInWithEmailAndPassword(this.username, this.password)
-    //     .then(userCredential => {
-    //       // Autenticación exitosa
-    //       console.log('Usuario autenticado:', userCredential.user);
-    //       // Una vez autenticado, puedes cerrar el formulario emergente
-    //       this.showPopup = false;
-    //     })
-    //     .catch(error => {
-    //       // Manejo de errores de autenticación
-    //       console.error('Error de autenticación:', error);
-    //       // Puedes mostrar un mensaje de error al usuario si lo deseas
-    //     });
-    // },
-    cancelLogin() {
-      this.showPopup = false;
+    async logIn(){
+      await this.listarUsuarios();
+      this.verificacion()
     }
   }
 };
 </script>
 
 <style scoped>
+.btnLogIn{
+  margin: 0 auto;
+  margin-bottom: 4%;
+  margin-top: 2%;
+  border-radius: 20px 10px;
+  background-color: brown;
+  color: white;
+}
+.cardLogIn{
+  width: 20%;
+  margin: 0 auto;
+  background-color: #C8E6C9;
+}
 #main {
   text-align: center;
   margin-top: 20px;
@@ -106,72 +97,19 @@ export default {
   /* Cambia el tamaño del texto del botón */
   cursor: pointer;
 }
-
-.login-popup {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.7);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 999;
-}
-
-.login-popup h2 {
-  color: white;
-}
-
-.login-popup form {
-  background-color: #C8E6C9;
-  padding: 20px;
-  border-radius: 5px;
-}
-
-div.loginLogo {
+.loginLogo {
   text-align: center;
+  margin-top: 5%;
 }
-
-input#username{
+input{
   border-style:double;
   border-color: black;
   border-radius: 10px 20px;
-
-}
-input#password{
-  border-style:double;
-  border-color: black;
-  border-radius: 10px 20px;
-
-}
-div.buttonsContainer {
-  text-align: right;
-}
-
-.login-popup input {
-  border: 2px;
-  border-color: black;
-  width: 100%;
-  padding: 10px;
-  margin-bottom: 10px;
-}
-
-.login-popup button.loginButton {
-  background-color: #007bff;
-  color: white;
-  border: none;
-  padding: 10px 20px;
-  cursor: pointer;
-}
-
-.login-popup button.cancelLogin {
-  background-color: #e73434;
-  color: white;
-  border: none;
-  padding: 10px 20px;
-  cursor: pointer;
-  margin: 5px;
+  width: 80%;
+  margin: 0 auto  ;
+  margin-bottom: 2%;
+  padding: 1%;
+  padding-left: 7%;
+  font-size: 120%;
 }
 </style>

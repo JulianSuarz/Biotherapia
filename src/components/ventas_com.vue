@@ -54,15 +54,13 @@
                     <td>{{ producto.precio }}</td>
                     <td>{{ subtotal }}</td>
                   </tr>
-                  <strong>{{ totalSubtotals }}</strong>
               </tbody>
-              <v-alert
-              v-if="faltaStock"
-              type="error"
-              outline>
-                Stock Insuficiente
-              </v-alert>
           </v-table>
+          <v-divider thickness="4"></v-divider>
+          <div class="totalcontainer">
+                    <p class="totaltxt">Total</p>
+                    <p class="totaln">{{ totalSubtotals }}</p>
+                  </div>
           </v-card-text>
           <v-card-actions >
             <v-spacer></v-spacer>
@@ -509,7 +507,7 @@ a {
   color: #42b983;
 }
 td{
-  text-align: center;
+  text-align: left;
 }
 .msgdelete{
   text-align: center;
@@ -546,5 +544,20 @@ td{
   margin: 0 auto;
   display: grid;
   place-items: center;
+}
+.totalcontainer{
+  display: flex;
+    justify-content: space-between; 
+    width: 60%;
+    padding-top: 2%;
+    float: right;
+}
+.totaltxt{
+  text-align: right;
+  padding-left: 24px;
+}
+.totaln{
+  text-align: left;
+  padding-right: 40px;
 }
 </style>

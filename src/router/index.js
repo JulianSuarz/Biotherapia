@@ -4,7 +4,6 @@ import ventas from '..//components/ventas_com.vue'
 import usuarios from '..//components/usuarios_com.vue'
 import crearusuarios from '..//components/crear_usuarios.vue'
 import Login from '../components/Login.vue'
-import home from '../components/home.vue'
 
 const routes = [
     {path: "/", name: "main", component: main,},
@@ -12,7 +11,6 @@ const routes = [
     {path: "/ventas", name: "Ventas", component: ventas,},
     {path: "/usuarios", name: "usuarios", component: usuarios,},
     {path: "/crearusuarios", name: "crearusuarios", component: crearusuarios,},
-    {path:"/home",name:"Home",component:home}
 
 ]
 const router = createRouter({
