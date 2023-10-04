@@ -52,7 +52,7 @@
                   />
                 </td>
                     <td>{{ producto.precio }}</td>
-                    <td>{{ subtotal }}</td>
+                    <td>{{ producto.subtotal}}</td>
                   </tr>
               </tbody>
           </v-table>
@@ -204,12 +204,14 @@
       <v-icon
         size="small"
         @click="addStock(item.raw)"
+        class="me-2"
       >
         mdi mdi-plus-thick
       </v-icon>
       <v-icon
         size="small"
         @click="addToCompras(item.raw)"
+        class="me-2"
       >
         mdi mdi-cart
       </v-icon>
@@ -278,7 +280,6 @@ require('jspdf-autotable')
         ],
         counters: {},
         productosVenta:[],
-        subtotal:0,
     }),
     computed: {
         formTitle() {
@@ -348,16 +349,15 @@ require('jspdf-autotable')
           if (ver){
             this.snbAdd = true;
           } else  {
+            let cantidad = 1
             let nuevaVenta = {
               keyid:item.keyid,
               producto:item.producto,
-              cantidad:1,
+              cantidad:cantidad,
               precio:item.precio,
+              subtotal:parseInt(item.precio)* parseInt(cantidad)
             }
             this.productosVenta.push(nuevaVenta)
-            this.productosVenta.forEach((producto)=>{
-            this.subtotal = producto.precio
-          })
           }
         },
         async confirmVenta(){
@@ -395,7 +395,7 @@ require('jspdf-autotable')
           this.close()
         },
         subtotalVenta(producto) {
-        this.subtotal = parseInt(producto.cantidad) * parseInt(producto.precio);
+        producto.subtotal = parseInt(producto.cantidad) * parseInt(producto.precio);
         },
         removeFromCompras(item) {
             this.compras = this.compras.filter(compra => compra.producto !== item.producto);
@@ -509,6 +509,10 @@ a {
 td{
   text-align: left;
 }
+.cardstock input{
+  text-align: center;
+  margin: 8px 0px auto;
+}
 .msgdelete{
   text-align: center;
 }
@@ -536,28 +540,26 @@ td{
   margin-right: 1%;
 }
 .cardventa{
-  width: 40%;
+  width: 80%;
   margin: 0 auto;
 }
 .cardstock{
-  width: 20%;
   margin: 0 auto;
   display: grid;
   place-items: center;
 }
 .totalcontainer{
   display: flex;
-    justify-content: space-between; 
-    width: 60%;
-    padding-top: 2%;
-    float: right;
+  justify-content: space-between;
+  margin-top: 5px; 
 }
 .totaltxt{
-  text-align: right;
-  padding-left: 24px;
+  padding-left: 15px;
 }
 .totaln{
-  text-align: left;
-  padding-right: 40px;
+  padding-right: 16px;
+  width: 11.34%;
 }
 </style>
+
+//145.984

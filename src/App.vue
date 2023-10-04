@@ -51,8 +51,8 @@
   v-model="vlogOut">
   <v-card class="txtlogout" title="¿Desea cerrar sesion?">
     <v-card-actions>
-      <v-spacer></v-spacer>
         <v-btn @click="vlogOut=false">No</v-btn>
+        <v-spacer></v-spacer>
         <v-btn @click="logOut()">Si</v-btn>
     </v-card-actions>
   </v-card>
@@ -111,6 +111,7 @@ export default {
 .txtlogout{
   width: 20%;
   margin: 0 auto;
+  text-align: center;
 }
 .main{
   background-color: #C8E6C9;
