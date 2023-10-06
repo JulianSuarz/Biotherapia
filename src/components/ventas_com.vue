@@ -2,7 +2,6 @@
   <v-data-table 
     :headers="  headers"
     :items="desserts"
-    class="elevation-1"
     height="calc(80vh)"
     items-per-page="-1"
     >
@@ -21,7 +20,6 @@
         <template v-slot:activator="{ props }">
           <v-btn
             class="btnventa"
-            color="primary"
             v-bind="props"
           >
             Venta
@@ -102,7 +100,7 @@
         <template v-slot:activator="{ props }">
             <v-btn
               dark
-              class="nproducto"
+              class="btnnproducto"
               v-bind="props"
             >
               Nuevo Producto
@@ -187,42 +185,26 @@
         </v-dialog>
     </template>
     <template  v-slot:[`item.actions`]="{ item }">
-        <v-icon 
-        size="small"
-        class="me-2"
-        @click="editItem(item.raw)"
-      >
-        mdi-pencil
-      </v-icon>
-      <v-icon
-        size="small"
-        class="me-2"
-        @click="deleteItem(item.raw)"
-      >
-        mdi-delete
-      </v-icon>
-      <v-icon
-        size="small"
-        @click="addStock(item.raw)"
-        class="me-2"
-      >
-        mdi mdi-plus-thick
-      </v-icon>
-      <v-icon
-        size="small"
-        @click="addToCompras(item.raw)"
-        class="me-2"
-      >
-        mdi mdi-cart
-      </v-icon>
+      <div style="display: flex;">
+        <v-icon size="small" class="me-2" @click="editItem(item.raw)">
+          mdi-pencil
+        </v-icon>
+        <v-icon size="small" class="me-2" @click="deleteItem(item.raw)">
+          mdi-delete
+        </v-icon>
+        <v-icon size="small" @click="addStock(item.raw)" class="me-2">
+          mdi mdi-plus-thick
+        </v-icon>
+        <v-icon size="small" @click="addToCompras(item.raw)" class="me-2">
+          mdi mdi-cart
+        </v-icon>
+      </div>
     </template>
     <template v-slot:no-data>
-      <v-btn
-        color="primary"
-        @click="initialize"
-      >
-        Reset
-      </v-btn>
+      <v-progress-linear
+      indeterminate
+      color="#3B3236"
+    ></v-progress-linear>
     </template>
   </v-data-table>
   <v-snackbar
@@ -271,15 +253,8 @@ require('jspdf-autotable')
             stock: 0,
             precio: 0,
         },
-        compras: [],
-        headersCompras: [
-            { title: 'Producto', key: 'producto' },
-            { title: 'Cantidad', key: 'cantidad' },
-            { title: 'Precio', key: 'precio' },
-            { title: '', key: 'actions', sortable: false }
-        ],
-        counters: {},
         productosVenta:[],
+        stockN:0,
     }),
     computed: {
         formTitle() {
@@ -385,7 +360,7 @@ require('jspdf-autotable')
         },
         async confirmAddStock(){
           const refdoc = doc(db,'producto',this.editedItem.keyid)
-          let stockNuevo = this.editedItem.stock + this.stockN
+          let stockNuevo = parseInt(this.editedItem.stock) + parseInt(this.stockN)
           const updateStock = {
             stock: this.editedItem.stock = stockNuevo
           }
@@ -402,34 +377,42 @@ require('jspdf-autotable')
         },
 
         async generatePDF() {
-          let columns = [
-            { title: "", dataKey: "producto" },
-            { title: "", dataKey: "cantidad" },
-            {title: "", dataKey:"precio"}
-          ];
-            let registros = this.productosVenta;
-            let total = this.totalSubtotals;
-            let doc = new jsPDF("p", "pt");
-            const currentDate = new Date();
+  let columns = [
+    { title: "", dataKey: "producto" },
+    { title: "", dataKey: "cantidad" },
+    { title: "", dataKey: "precio" },
+  ];
 
+  let registros = this.productosVenta;
+  let total = this.totalSubtotals;
 
-            const formattedDate = `${currentDate.getDate()}/${currentDate.getMonth() + 1}/${currentDate.getFullYear()}`;
-            const formattedTime = `${currentDate.getHours()}:${currentDate.getMinutes()}:${currentDate.getSeconds()}`;
-            const tableHeight = registros.length * 20 + 40;
-            doc.autoTable(columns, registros, {
-              margin: { top: 70 },
-              addPageContent: function () {
-                doc.text("<<<BIOTHERAPIA>>>", 200, 30);
-                doc.text(`Fecha: ${formattedDate}`, 160, 50);
-                doc.text(`Hora: ${formattedTime}`, 300, 50);
-                doc.text(`Total: ${total}`, 120, tableHeight );
-                
-              },
-            });
-            if (confirm("¿Estás seguro de que deseas descargar el Informe de Venta?")) {
-            doc.save(`Informe ${formattedDate}.pdf`);
-            }
-          },
+  registros.forEach((registro) => {
+    registro.cantidad = "         " + registro.cantidad; // Agrega espacios en blanco
+    registro.precio = "         " + registro.precio; // Agrega espacios en blanco
+  });
+  total = "         " + total; // Agrega espacios en blanco
+
+  let totalRow = { producto: "Total:", cantidad: "", precio: total };
+  registros.push(totalRow);
+
+  let doc = new jsPDF("p", "pt");
+  const currentDate = new Date();
+  const formattedDate = `${currentDate.getDate()}/${currentDate.getMonth() + 1}/${currentDate.getFullYear()}`;
+  const formattedTime = `${currentDate.getHours()}:${currentDate.getMinutes()}:${currentDate.getSeconds()}`;
+
+  doc.text("<<<BIOTHERAPIA>>>", 200, 30);
+  doc.text(`Fecha: ${formattedDate}`, 160, 50);
+  doc.text(`Hora: ${formattedTime}`, 300, 50);
+
+  doc.autoTable(columns, registros, {
+    margin: { top: 70 },
+
+  });
+
+  if (confirm("¿Estás seguro de que deseas descargar el Informe de Venta?")) {
+    doc.save(`Informe ${formattedDate}.pdf`);
+  }
+},
 
         editItem(item) {
             this.editedIndex = this.desserts.indexOf(item);
@@ -516,10 +499,12 @@ td{
 .msgdelete{
   text-align: center;
 }
-.nproducto{
+.btnnproducto{
   width: 40%;
   margin-left: 1%;
   margin-bottom: 1.5%;
+  background-color: #6B3236;
+  color: white;
 }
 
 .toolbar{
@@ -538,6 +523,8 @@ td{
   width: 15%;
   float: right;
   margin-right: 1%;
+  background-color: #6B3236;
+  color: white;
 }
 .cardventa{
   width: 80%;

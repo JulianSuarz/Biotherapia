@@ -4,6 +4,7 @@ import ventas from '..//components/ventas_com.vue'
 import usuarios from '..//components/usuarios_com.vue'
 import crearusuarios from '..//components/crear_usuarios.vue'
 import Login from '../components/Login.vue'
+import servicios from '../components/servicios_com.vue'
 
 const routes = [
     {path: "/", name: "main", component: main,},
@@ -11,6 +12,7 @@ const routes = [
     {path: "/ventas", name: "Ventas", component: ventas,},
     {path: "/usuarios", name: "usuarios", component: usuarios,},
     {path: "/crearusuarios", name: "crearusuarios", component: crearusuarios,},
+    {path:"/servicios",name:'servicios',component:servicios}
 
 ]
 const router = createRouter({

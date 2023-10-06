@@ -1,22 +1,24 @@
 <template>
   <v-app>
-  <v-toolbar color="#43A047">
+  <v-toolbar color="#79464a">
 
-    <v-img :max-width="70" id="logonav" src="../src/assets/logoBiotherapia.png"></v-img>
-    <v-toolbar-title>BioTherapia</v-toolbar-title>
+    <v-img :max-width="70" id="logonav" src="../src/assets/logoN.png"></v-img>
+    <v-toolbar-title>BIOTHERAPIA</v-toolbar-title>
 
   </v-toolbar>
   <v-card>
     <v-layout>
-      <v-navigation-drawer color="#A5D6A7" permanent location="left">
+      <v-navigation-drawer color="#f0eaea" permanent location="left">
         <v-divider></v-divider>
         <v-list density="compact" nav>
-          <router-link class="rlnav" to="/"><v-list-item prepend-icon="mdi mdi-home" title="INICIO"
+          <router-link class="rlnav" to="/"><v-list-item style="color: black;" prepend-icon="mdi mdi-home" title="INICIO"
               value="myfiles"></v-list-item></router-link>
               <div class="divshow" v-if="logged">
-                <router-link class="rlnav" to="/ventas"><v-list-item prepend-icon="mdi mdi-server" title="INVENTARIO"
+                <router-link class="rlnav" to="/ventas"><v-list-item style="color: black;" prepend-icon="mdi mdi-folder-heart" title="PRODUCTOS"
               value="shared"></v-list-item></router-link>
-          <router-link class="rlnav" to="/usuarios"><v-list-item prepend-icon="mdi-account-multiple" title="USUARIOS"
+              <router-link class="rlnav" to="/servicios"><v-list-item style="color: black;" prepend-icon="mdi mdi-head-heart" title="SERVICIOS"
+              value="shared"></v-list-item></router-link>
+              <router-link class="rlnav" to="/usuarios"><v-list-item style="color: black;" prepend-icon="mdi-account-multiple" title="USUARIOS"
               value="shared"></v-list-item></router-link>
             </div>
         </v-list>
@@ -114,7 +116,6 @@ export default {
   text-align: center;
 }
 .main{
-  background-color: #C8E6C9;
   height: 93vh;
 }
 #logonav{

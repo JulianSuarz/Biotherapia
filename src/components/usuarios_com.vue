@@ -4,7 +4,6 @@
     :headers="headers"
     :items="desserts"
     :sort-by="[{ key: 'producto', order: 'asc' }]"
-    class="elevation-1"
     style="max-height: 100%;"
   >
     <template v-slot:top>
@@ -22,7 +21,7 @@
             <v-btn
               dark
               v-bind="props"
-              class="nproducto"
+              class="btnuser"
             >
               Nuevo Usuario
             </v-btn>
@@ -126,12 +125,10 @@
       </v-icon>
     </template>
     <template v-slot:no-data>
-      <v-btn
-        color="primary"
-        @click="initialize"
-      >
-        Reset
-      </v-btn>
+      <v-progress-linear
+      indeterminate
+      color="#3B3236"
+    ></v-progress-linear>
     </template>
   </v-data-table>
 </template>
@@ -299,10 +296,12 @@ a {
 .msgdelete{
   text-align: center;
 }
-.nproducto{
+.btnuser{
   width: 20%;
   margin-left: 1%;
   margin-bottom: 1%;
   margin-top: -0.5%;
+  background-color: #6B3236;
+  color: white;
 }
 </style>
