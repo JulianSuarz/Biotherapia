@@ -3,7 +3,8 @@
   <v-data-table 
     :headers="headers"
     :items="desserts"
-    :sort-by="[{ key: 'producto', order: 'asc' }]"
+    :sort-by="[{ key: 'fecha', order: 'asc' }]"
+    height="calc(80vh)"
     style="max-height: 100%;"
   >
     <template v-slot:top>
@@ -66,13 +67,10 @@
                   </v-col>
                   <v-col
                     cols="12"
-                    sm="6"
-                    md="4"
                   >
-                    <v-text-field
-                      v-model="editedItem.correo"
-                      label="Correo"
-                    ></v-text-field>
+                  <v-textarea 
+                    v-model="editedItem.historial"
+                    label="Historial"></v-textarea>
                   </v-col>
                 </v-row>
               </v-container>
@@ -117,12 +115,6 @@
       >
         mdi-pencil
       </v-icon>
-      <v-icon
-        size="small"
-        @click="deleteItem(item.raw)"
-      >
-        mdi-delete
-      </v-icon>
     </template>
     <template v-slot:no-data>
       <v-progress-linear
@@ -147,10 +139,11 @@ import { addDoc, collection, getDocs, query , updateDoc , doc, deleteDoc } from 
           sortable: false,
           key: 'ndocumento',
         },
-        { title: 'Nombre', key: 'nombre' },
-        { title: 'Telefono', key: 'telefono' },
-        { title: 'Correo', key: 'correo' },
-        { title: 'Acciones', key: 'actions', sortable: false },
+        { title: 'Nombre', key: 'nombre',sortable: false},
+        { title:'Historial', key:'historial',sortable: false},
+        { title: 'Telefono', key: 'telefono',sortable: false },
+        { title:'Fecha', key:'fecha'},
+        { title:'',key:'actions',sortable: false}
       ],
       desserts: [],
       editedIndex: -1,
@@ -158,14 +151,17 @@ import { addDoc, collection, getDocs, query , updateDoc , doc, deleteDoc } from 
         keyid: 0,
         ndocumento: 0,
         nombre: '',
+        historial:'',
         telefono: 0,
-        correo: '',
+        fecha: '',
       },
       defaultItem: {
+        keyid: 0,
         ndocumento: 0,
         nombre: '',
+        historial:'',
         telefono: 0,
-        correo: '',
+        fecha: '',
       },
     }),
 
@@ -173,6 +169,10 @@ import { addDoc, collection, getDocs, query , updateDoc , doc, deleteDoc } from 
       formTitle () {
         return this.editedIndex === -1 ? 'Nuevo Usuario' : 'Editar Usuario'
       },
+      getDate(){
+        const currentDate = new Date();
+        return `${currentDate.getDate()}/${currentDate.getMonth() + 1}/${currentDate.getFullYear()}`;
+      }
     },
 
     watch: {
@@ -185,46 +185,54 @@ import { addDoc, collection, getDocs, query , updateDoc , doc, deleteDoc } from 
     },
 
     created () {
-      this.listarUsuarios()
+      this.listarPacientes()
     },
 
     methods: {
-      async listarUsuarios(){
-        const q = query(collection(db,'usuarios'));
+      async listarPacientes(){
+        const q = query(collection(db,'pacientes'));
         const result = await getDocs(q);
         result.forEach((doc)=>{
           this.desserts.push({
             keyid:doc.id,
             ndocumento:doc.data().ndocumento,
             nombre:doc.data().nombre,
+            historial:doc.data().historial,
             telefono:doc.data().telefono,
-            correo:doc.data().correo
+            fecha:doc.data().fecha,
           })
         })
       },
-      async crearUsuario(){
-        const colRef = collection(db,'usuarios');
+      async crearPaciente(){
+        const colRef = collection(db,'pacientes');
         const dataObj = {
           ndocumento: this.editedItem.ndocumento,
           nombre: this.editedItem.nombre,
-          telefono: this.editedItem.telefono,
-          correo: this.editedItem.correo,
+          historial:this.editedItem.historial,
+          telefono:this.editedItem.telefono,
+          fecha:this.getDate,
         }
-        const docRef = await addDoc(colRef,dataObj)
-        console.log(docRef.id)
+        await addDoc(colRef,dataObj)
+        this.clear()
+        this.listarPacientes()
       },
       
-      async updateUsuarios(){
-        const ref = doc(db,'usuarios',this.editedItem.keyid)
+      async updatePaciente(){
+        const ref = doc(db,'pacientes',this.editedItem.keyid)
         await updateDoc(ref,{
           nombre:this.editedItem.nombre,
           telefono:this.editedItem.telefono,
-          correo:this.editedItem.correo,
+          historial:this.editedItem.historial,
+          fecha:this.getDate,
         })
+        this.clear()
+        this.listarPacientes()
       },
 
-      async deleteUsuarios(){
+      async deletePaciente(){
         await deleteDoc(doc(db,'usuarios',this.editedItem.keyid))
+        this.clear()
+        this.listarPacientes()
       },
 
       editItem (item) {
@@ -242,7 +250,7 @@ import { addDoc, collection, getDocs, query , updateDoc , doc, deleteDoc } from 
       deleteItemConfirm () {
         this.desserts.splice(this.editedIndex, 1)
         this.closeDelete()
-        this.deleteUsuarios()
+        this.deletePaciente()
       },
 
       close () {
@@ -264,13 +272,16 @@ import { addDoc, collection, getDocs, query , updateDoc , doc, deleteDoc } from 
       save () {
         if (this.editedIndex > -1) {
           Object.assign(this.desserts[this.editedIndex], this.editedItem)
-          this.updateUsuarios()
+          this.updatePaciente()
         } else {
           this.desserts.push(this.editedItem)
-          this.crearUsuario()
+          this.crearPaciente()
         }
         this.close()
       },
+      clear() {
+            this.desserts = [];
+        },
     },
   }
 </script> 

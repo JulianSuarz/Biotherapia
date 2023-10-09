@@ -18,7 +18,7 @@
               value="shared"></v-list-item></router-link>
               <router-link class="rlnav" to="/servicios"><v-list-item style="color: black;" prepend-icon="mdi mdi-head-heart" title="SERVICIOS"
               value="shared"></v-list-item></router-link>
-              <router-link class="rlnav" to="/usuarios"><v-list-item style="color: black;" prepend-icon="mdi-account-multiple" title="USUARIOS"
+              <router-link class="rlnav" to="/pacientes"><v-list-item style="color: black;" prepend-icon="mdi-account-multiple" title="PACIENTES"
               value="shared"></v-list-item></router-link>
             </div>
         </v-list>
@@ -91,7 +91,6 @@ export default {
     async verificacion(){
       const vUser = this.users.find((user)=> user.usuario === this.username && user.pass === this.password);
       if (vUser){
-        console.log("Entrando")
         this.logged = true
         this.$router.push({path:'/'})
         this.showPopup = false

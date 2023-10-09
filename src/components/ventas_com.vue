@@ -208,9 +208,20 @@
     </template>
   </v-data-table>
   <v-snackbar
+  style="margin-bottom: 1%;opacity: 90%;"
   v-model="snbAdd"
+  rounded="pill"
+  color="error"
   timeout="2000">
     <div style="text-align: center;">El producto ya esta agregado</div>
+  </v-snackbar>
+  <v-snackbar
+  style="margin-bottom: 1%;opacity: 90%;"
+  v-model="snbAddV"
+  rounded="pill"
+  color="success"
+  timeout="2000">
+    <div style="text-align: center;">Producto agregado</div>
   </v-snackbar>
 </template>
 <script >
@@ -221,6 +232,7 @@ require('jspdf-autotable')
   export default {
     data: () => ({
         snbAdd:false,
+        snbAddV:false,
         dialogAdd:false,
         dialogv:false,
         dialog: false,
@@ -229,10 +241,9 @@ require('jspdf-autotable')
             {
                 title: 'Producto',
                 align: 'start',
-                sortable: false,
                 key: 'producto',
             },
-            { title: 'Descripcion', key: 'descripcion' },
+            { title: 'Descripcion', key: 'descripcion',sortable: false, },
             { title: 'Stock', key: 'stock' },
             { title: 'Precio', key: 'precio' },
             { title: '', key: 'actions', sortable: false},
@@ -324,6 +335,7 @@ require('jspdf-autotable')
           if (ver){
             this.snbAdd = true;
           } else  {
+            this.snbAddV = true
             let cantidad = 1
             let nuevaVenta = {
               keyid:item.keyid,
@@ -471,9 +483,6 @@ require('jspdf-autotable')
 };
 </script> 
 <style scoped>
-.elevation-1{
-  background-color: rgba(172, 255, 47, 0.189);
-}
 
 h3 {
   margin: 40px 0 0;
@@ -548,5 +557,3 @@ td{
   width: 11.34%;
 }
 </style>
-
-//145.984

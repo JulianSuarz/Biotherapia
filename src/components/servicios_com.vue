@@ -175,7 +175,7 @@
           </v-dialog>
       </template>
       <template  v-slot:[`item.actions`]="{ item }">
-        <div style="margin-left: 30%;">
+        <div style="margin-left: 53%;">
         <v-icon size="small" class="me-2" @click="editItem(item.raw)">
           mdi-pencil
         </v-icon>
