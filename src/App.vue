@@ -20,6 +20,8 @@
               value="shared"></v-list-item></router-link>
               <router-link class="rlnav" to="/pacientes"><v-list-item style="color: black;" prepend-icon="mdi-account-multiple" title="PACIENTES"
               value="shared"></v-list-item></router-link>
+              <router-link class="rlnav" to="/informes"><v-list-item style="color: black;" prepend-icon="mdi-account-multiple" title="INFORMES"
+              value="shared"></v-list-item></router-link>
             </div>
         </v-list>
         <template v-slot:append>
@@ -86,7 +88,6 @@ export default {
             pass:doc.data().password,
           })
         })
-        console.log(this.users)
       },
     async verificacion(){
       const vUser = this.users.find((user)=> user.usuario === this.username && user.pass === this.password);

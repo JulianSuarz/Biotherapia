@@ -348,6 +348,7 @@ require('jspdf-autotable')
           }
         },
         async confirmVenta(){
+          const informeVenta = []
           this.productosVenta.forEach((producto)=>{
             const productoLista = this.desserts.find(item => item.keyid=== producto.keyid)
             if (productoLista){
@@ -362,13 +363,36 @@ require('jspdf-autotable')
                   stock: producto.stock = stockAct
                 }
                 updateDoc(ref,updateData)
+                /* this.generatePDF() */
+                const venta = {
+                  producto:producto.producto,
+                  cantidad:producto.cantidad,
+                  subtotal:cantidadVendida*producto.precio
+                }
+                informeVenta.push(venta)
+                this.close()
               }
             }
-            
           })
-              this.generatePDF()
-              this.close()
-              this.clearVenta()
+          const fecha = new Date()
+          const options = { 
+            year: 'numeric', 
+            month: '2-digit', 
+            day: '2-digit', 
+            hour: '2-digit', 
+            minute: '2-digit', 
+            second: '2-digit' 
+          };
+          const fechaCompleta = fecha.toLocaleString('es-ES', options);
+          const ref = collection(db, 'informes')
+          const data = {
+            fecha:fechaCompleta,
+            productos:informeVenta,
+            total:this.totalSubtotals,
+            venta:'Producto'
+          }
+          await addDoc(ref,data)
+          this.clearVenta()
         },
         async confirmAddStock(){
           const refdoc = doc(db,'producto',this.editedItem.keyid)

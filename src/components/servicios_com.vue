@@ -327,7 +327,33 @@
             }
           },
           async confirmVenta(){
-                this.generatePDF()
+                const informeVenta = []
+                this.productosVenta.forEach((servicio)=>{
+                  const venta = {
+                  producto:servicio.servicio,
+                  cantidad:servicio.cantidad,
+                  subtotal:servicio.cantidad*servicio.precio
+                }
+                informeVenta.push(venta)
+                })
+                const fecha = new Date();
+          const options = { 
+            year: 'numeric', 
+            month: '2-digit', 
+            day: '2-digit', 
+            hour: '2-digit', 
+            minute: '2-digit', 
+            second: '2-digit' 
+          };
+          const fechaCompleta = fecha.toLocaleString('es-ES', options);
+          const ref = collection(db, 'informes')
+          const data = {
+            fecha:fechaCompleta,
+            productos:informeVenta,
+            total:this.totalSubtotals,
+            tipoVenta:'Servicio',
+          }
+          await addDoc(ref,data)
                 this.close()
                 this.clearVenta()
           },
