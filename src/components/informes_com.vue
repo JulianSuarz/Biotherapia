@@ -1,4 +1,5 @@
 <template>
+<v-table height="calc(93vh)">
   <div v-for="(productos,index) in desserts" :key="index">
     <v-expansion-panels>
       <v-expansion-panel>
@@ -11,10 +12,15 @@
               <span v-if="open" key="0"> {{productos.venta}} </span>
             </v-fade-transition>
           </v-col>
+          <v-col  class="d-flex justify-end">
+              <v-btn class="pdfbuttoi" color="green" @click="printTable(index)">
+                <v-icon>mdi mdi-file-download</v-icon>
+              </v-btn>
+          </v-col>
         </v-row>
       </v-expansion-panel-title>
       <v-expansion-panel-text>
-        <v-table class="table">
+          <v-table class="table">
             <thead>
                 <tr>
                   <th style="width: 80%;">Producto</th>
@@ -38,11 +44,18 @@
       </v-expansion-panel>
     </v-expansion-panels>
   </div>
+  <v-btn color="green" @click="printAllTables()">
+  <v-icon>mdi mdi-folder-download</v-icon>
+  Imprimir todos los informes
+</v-btn>
+</v-table>
 </template>
 <script >
 import db from '@/firebase/init'
 import { collection, getDocs } from 'firebase/firestore'
-  require('jspdf-autotable')
+import jsPDF from "jspdf";
+import "jspdf-autotable";
+
     export default {
       data: () => ({
           headers: [
@@ -97,6 +110,56 @@ import { collection, getDocs } from 'firebase/firestore'
           this.listarInformes();
       },
       methods: {
+        printTable(index) {
+      const productos = this.desserts[index].productos;
+      const totalVenta = this.desserts[index].total; 
+      const doc = new jsPDF();
+
+      const data = productos.map((producto) => [
+        producto.producto,
+        producto.cantidad,
+        producto.subtotal,
+      ]);
+      data.push(["TOTAL DE VENTA", "", totalVenta]);
+
+      doc.autoTable({
+        head: [this.headers.map((header) => header.title)], 
+        body: data,
+        startY: 20, 
+        showHead: "firstPage", 
+      });
+
+      doc.save("tabla-" + index + ".pdf");
+    },
+        async printAllTables() {
+      const doc = new jsPDF();
+      
+
+      for (let index = 0; index < this.desserts.length; index++) {
+        const productos = this.desserts[index].productos;
+        const totalVenta = this.desserts[index].total;
+
+        const data = productos.map((producto) => [
+          producto.producto,
+          producto.cantidad,
+          producto.subtotal,
+        ]);
+        data.push(["TOTAL DE VENTA", "", totalVenta]);
+
+        doc.autoTable({
+          head: [this.headers.map((header) => header.title)],
+          body: data,
+          startY: 20,
+          showHead: "firstPage",
+        });
+
+        if (index < this.desserts.length - 1) {
+          doc.addPage(); 
+        }
+      }
+
+      doc.save("todas-las-tablas.pdf");
+    },
         async listarInformes(){
             const q = collection(db, 'informes');
             const result = await getDocs(q);
@@ -114,6 +177,7 @@ import { collection, getDocs } from 'firebase/firestore'
         },
       }
 };
+
   </script> 
   <style scoped>
   .fecha{

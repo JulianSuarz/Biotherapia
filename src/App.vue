@@ -20,13 +20,13 @@
               value="shared"></v-list-item></router-link>
               <router-link class="rlnav" to="/pacientes"><v-list-item style="color: black;" prepend-icon="mdi-account-multiple" title="PACIENTES"
               value="shared"></v-list-item></router-link>
-              <router-link class="rlnav" to="/informes"><v-list-item style="color: black;" prepend-icon="mdi-account-multiple" title="INFORMES"
+              <router-link class="rlnav" to="/informes"><v-list-item style="color: black;" prepend-icon="mdi mdi-file-document-multiple" title="INFORMES"
               value="shared"></v-list-item></router-link>
             </div>
         </v-list>
         <template v-slot:append>
              <div class="pa-2">
-            <v-btn 
+            <v-btn class="logb"
             @click="logged ? vlogOut=true : logIn()"
             block>
             {{ logged ? 'Log Out' : 'Log In' }}
@@ -135,7 +135,7 @@ export default {
 .cardLogIn{
   width: 20%;
   margin: 0 auto;
-  background-color: #C8E6C9;
+  background-color: #f0eaea;
 }
 #main {
   text-align: center;
@@ -156,4 +156,5 @@ input{
   padding-left: 7%;
   font-size: 120%;
 }
+
 </style>

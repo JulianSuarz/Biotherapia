@@ -1,7 +1,7 @@
 <template>
   <div>
     <div id="main">
-      <h1 class="nombreempresa">BioTherapia</h1>
+      <h1 class="nombreempresa">BIOTHERAPIA</h1>
     </div>
 
     <v-carousel cycle :interval="2500" show-arrows="hover" height="600" cover hide-delimiter-background class="carrusel">
@@ -54,4 +54,9 @@ export default {
 </script>
 
 <style scoped>
+.nombreempresa{
+  color: brown;
+  text-align: center;
+  font-size: 100px;
+}
 </style>
